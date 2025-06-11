@@ -135,13 +135,24 @@
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 
 <!-- Sound effects -->
-<audio id="meow" src="https://www.fesliyanstudios.com/play-mp3/387"></audio>
-<audio id="cheer" src="https://www.fesliyanstudios.com/play-mp3/438"></audio>
+<audio id="meow" src="https://cdn.freesound.org/previews/269/269158_5121236-lq.mp3"></audio>
+<audio id="cheer" src="https://cdn.freesound.org/previews/336/336654_2305278-lq.mp3"></audio>
 
 <script>
   const correctName = "fluffy";
   let lives = 10;
   let wrongGuesses = 0;
+
+  function updateCatImage() {
+    const catImage = document.getElementById("catImage");
+    if (wrongGuesses <= 2) {
+      catImage.src = "Cat.jpeg";
+    } else if (wrongGuesses <= 6) {
+      catImage.src = "EncouragingCat.jpeg";
+    } else if (wrongGuesses <= 9) {
+      catImage.src = "SadCat.jpeg";
+    }
+  }
 
   function checkName() {
     const input = document.getElementById("catNameInput").value.trim().toLowerCase();
@@ -149,20 +160,28 @@
     const clue = document.getElementById("clue");
     const catImage = document.getElementById("catImage");
 
+    if (!input) {
+      feedback.textContent = "Please enter a name!";
+      feedback.style.color = "orange";
+      return;
+    }
+
     if (input === correctName) {
-      feedback.textContent = "🎉 Well done!";
+      feedback.textContent = "🎉 Well done! You guessed it right!";
       feedback.style.color = "green";
       clue.textContent = "";
-      lives = 5;
-      wrongGuesses = 0;
-      catImage.src = "HappyCat.jpeg";
       document.getElementById("cheer").play();
       confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+      lives = 10;
+      wrongGuesses = 0;
+      catImage.src = "Cat.jpeg"; // reset image
     } else {
       lives--;
       wrongGuesses++;
+      feedback.textContent = `❌ Try again! (${lives} lives left)`;
+      feedback.style.color = "red";
       document.getElementById("meow").play();
-      catImage.src = "MadCat.jpeg";
+      updateCatImage();
 
       if (lives <= 0) {
         feedback.textContent = "💀 Game Over! The cat's name was FLUFFY.";
@@ -170,23 +189,18 @@
         clue.textContent = "";
         lives = 10;
         wrongGuesses = 0;
+        catImage.src = "Cat.jpeg"; // reset image
         return;
       }
 
-      // Letter-matching clue
+      // Clue logic
       const uniqueCorrectLetters = new Set(correctName);
       const matchedLetters = [...new Set(input)].filter(letter => uniqueCorrectLetters.has(letter));
       const letterClue = matchedLetters.length > 0
         ? `Clue: Your guess contains ${matchedLetters.length} correct letter(s): ${matchedLetters.join(", ").toUpperCase()}`
         : `Clue: None of those letters are in the name.`;
 
-      // Show extra clue after 5 incorrect attempts
-      const extraClue = (wrongGuesses >= 5)
-        ? `💡 Extra Clue: It is hairy, isn't it?`
-        : "";
-
-      feedback.textContent = `❌ Try again! (${lives} lives left)`;
-      feedback.style.color = "red";
+      const extraClue = (wrongGuesses >= 5) ? `💡 Extra Clue: I am hairy, aren't I?` : "";
       clue.textContent = `${letterClue} ${extraClue}`;
     }
   }
