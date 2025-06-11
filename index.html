@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Name the Cat!</title>
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    background: linear-gradient(135deg, #ffe0ec, #e0f7ff);
+    color: #333;
+    text-align: center;
+  }
+
+  .hero {
+    height: 50vh;
+    background: linear-gradient(to right, #ff6ec4, #7873f5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-direction: column;
+    padding: 2rem;
+  }
+
+  .hero h1 {
+    font-size: 4rem;
+    margin: 0;
+    animation: bounce 1.2s infinite alternate;
+  }
+
+  .hero p {
+    font-size: 1.5rem;
+    margin-top: 1rem;
+  }
+
+  @keyframes bounce {
+    0% { transform: translateY(0px); }
+    100% { transform: translateY(-10px); }
+  }
+
+  .grid {
+    max-width: 800px;
+    margin: 3rem auto;
+    padding: 2rem;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  }
+
+  .grid-item img {
+    width: 80%;
+    max-width: 300px;
+    border-radius: 12px;
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+
+  .grid-item img:hover {
+    transform: scale(1.05);
+  }
+
+  input[type="text"] {
+    padding: 0.7rem;
+    font-size: 1rem;
+    margin-top: 1rem;
+    width: 60%;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+  }
+
+  button {
+    margin-top: 1rem;
+    padding: 0.7rem 1.5rem;
+    font-size: 1rem;
+    background: #6a5acd;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+
+  button:hover {
+    background: #483d8b;
+  }
+
+  #feedback {
+    font-size: 2rem;
+    margin-top: 1rem;
+  }
+
+  #clue {
+    margin-top: 0.5rem;
+    font-size: 1.2rem;
+    color: #555;
+  }
+
+  footer {
+    margin-top: 4rem;
+    padding: 2rem;
+    font-size: 0.9rem;
+    background: #f0f0f0;
+    color: #888;
+  }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <h1>YO WHAT'S UP! 😸</h1>
+  <p>Think you can guess the cat's name? Let's find out!</p>
+</section>
+
+<section class="grid">
+  <div class="grid-item">
+    <img src="cat.jpeg" alt="Cat" />
+    <h3>Please name the cat below</h3>
+    <input type="text" id="catNameInput" placeholder="Enter a name here" />
+    <br />
+    <button onclick="checkName()">Submit</button>
+    <p id="feedback"></p>
+    <p id="clue"></p>
+  </div>
+</section>
+
+<footer>
+  &copy; 2025 — Made with ♥ by Me
+</footer>
+
+<!-- Confetti effect (when correct) -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
+<script>
+  const correctName = "Fluffy";
+  let attemptCount = 0;
+
+  function checkName() {
+    const input = document.getElementById("catNameInput").value.trim();
+    const feedback = document.getElementById("feedback");
+    const clue = document.getElementById("clue");
+
+    if (input === correctName) {
+      feedback.textContent = "🎉 Well done!";
+      feedback.style.color = "green";
+      clue.textContent = "";
+      attemptCount = 0;
+
+      // Trigger confetti
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+    } else {
+      feedback.textContent = "❌ Try again!";
+      feedback.style.color = "red";
+
+      if (attemptCount < correctName.length) {
+        const partial = correctName.substring(0, attemptCount + 1);
+        clue.textContent = `Clue: Starts with "${partial}"`;
+        attemptCount++;
+      } else {
+        clue.textContent = `Clue: The name is "${correctName}"`;
+      }
+    }
+  }
+</script>
+
+</body>
+</html>
