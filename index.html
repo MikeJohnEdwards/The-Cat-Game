@@ -106,12 +106,45 @@
       background: #f0f0f0;
       color: #888;
     }
+
+    #playAgainModal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      align-items: center;
+      justify-content: center;
+    }
+
+    #modalContent {
+      background-color: white;
+      padding: 3rem;
+      border-radius: 20px;
+      text-align: center;
+      max-width: 400px;
+      margin: auto;
+    }
+
+    #modalContent h2 {
+      font-size: 2.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    #modalContent button {
+      font-size: 1.2rem;
+      padding: 0.8rem 2rem;
+      margin: 0.5rem;
+    }
   </style>
 </head>
 <body>
 
 <section class="hero">
-  <h1>YO WHAT'S UP! 😸</h1>
+  <h1>YO WHAT'S UP! 😼</h1>
   <p>Think you can guess the cat's name? Let's find out!</p>
 </section>
 
@@ -128,37 +161,68 @@
 </section>
 
 <footer>
-  &copy; 2025 — Made with ♥ by Me
+  &copy; 2025 — Made with ♥ by Michael
 </footer>
 
-<!-- Confetti -->
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-
-<!-- Sound effects -->
-<audio id="meow" src="https://cdn.freesound.org/previews/269/269158_5121236-lq.mp3"></audio>
-<audio id="cheer" src="https://cdn.freesound.org/previews/336/336654_2305278-lq.mp3"></audio>
+<div id="playAgainModal">
+  <div id="modalContent">
+    <h2>🎉 You completed the round!<br>Play again?</h2>
+    <button onclick="nextCat()">Yes</button>
+    <button onclick="endGame()">No</button>
+  </div>
+</div>
 
 <script>
-  const correctName = "fluffy";
+  const catNames = ["fluffy", "cuddles", "cutie", "flash"];
+  const extraClues = {
+    fluffy: "💡 Extra Clue: I'm hairy aren't I?",
+    cuddles: "💡 Extra Clue: Don't you want to hold me?",
+    cutie: "💡 Extra Clue: I look so sweet",
+    flash: "💡 Extra Clue: I'm fast!"
+  };
+
+  let currentIndex = 0;
+  let correctName = catNames[currentIndex];
   let lives = 10;
   let wrongGuesses = 0;
 
   function updateCatImage() {
     const catImage = document.getElementById("catImage");
     if (wrongGuesses <= 2) {
-      catImage.src = "Cat.jpeg";
+      catImage.src = `Cat.jpeg`;
     } else if (wrongGuesses <= 6) {
-      catImage.src = "EncouragingCat.jpeg";
-    } else if (wrongGuesses <= 9) {
-      catImage.src = "SadCat.jpeg";
+      catImage.src = `EncouragingCat.jpeg`;
+    } else {
+      catImage.src = `SadCat.jpeg`;
     }
+  }
+
+  function resetGame() {
+    lives = 10;
+    wrongGuesses = 0;
+    document.getElementById("catNameInput").value = "";
+    document.getElementById("feedback").textContent = "";
+    document.getElementById("clue").textContent = "";
+    document.getElementById("catImage").src = "Cat.jpeg";
+  }
+
+  function nextCat() {
+    currentIndex = (currentIndex + 1) % catNames.length;
+    correctName = catNames[currentIndex];
+    resetGame();
+    document.getElementById("playAgainModal").style.display = "none";
+  }
+
+  function endGame() {
+    document.getElementById("playAgainModal").style.display = "none";
+    document.getElementById("feedback").textContent = "Thanks for playing!";
+    document.getElementById("clue").textContent = "";
   }
 
   function checkName() {
     const input = document.getElementById("catNameInput").value.trim().toLowerCase();
     const feedback = document.getElementById("feedback");
     const clue = document.getElementById("clue");
-    const catImage = document.getElementById("catImage");
 
     if (!input) {
       feedback.textContent = "Please enter a name!";
@@ -170,39 +234,36 @@
       feedback.textContent = "🎉 Well done! You guessed it right!";
       feedback.style.color = "green";
       clue.textContent = "";
-      document.getElementById("cheer").play();
-      confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-      lives = 10;
-      wrongGuesses = 0;
-      catImage.src = "Cat.jpeg"; // reset image
-    } else {
-      lives--;
-      wrongGuesses++;
-      feedback.textContent = `❌ Try again! (${lives} lives left)`;
-      feedback.style.color = "red";
-      document.getElementById("meow").play();
-      updateCatImage();
-
-      if (lives <= 0) {
-        feedback.textContent = "💀 Game Over! The cat's name was FLUFFY.";
-        feedback.style.color = "darkred";
-        clue.textContent = "";
-        lives = 10;
-        wrongGuesses = 0;
-        catImage.src = "Cat.jpeg"; // reset image
-        return;
-      }
-
-      // Clue logic
-      const uniqueCorrectLetters = new Set(correctName);
-      const matchedLetters = [...new Set(input)].filter(letter => uniqueCorrectLetters.has(letter));
-      const letterClue = matchedLetters.length > 0
-        ? `Clue: Your guess contains ${matchedLetters.length} correct letter(s): ${matchedLetters.join(", ").toUpperCase()}`
-        : `Clue: None of those letters are in the name.`;
-
-      const extraClue = (wrongGuesses >= 5) ? `💡 Extra Clue: I am hairy, aren't I?` : "";
-      clue.textContent = `${letterClue} ${extraClue}`;
+      setTimeout(() => {
+        document.getElementById("playAgainModal").style.display = "flex";
+      }, 1000);
+      return;
     }
+
+    lives--;
+    wrongGuesses++;
+    feedback.textContent = `❌ Try again! (${lives} lives left)`;
+    feedback.style.color = "red";
+    updateCatImage();
+
+    if (lives <= 0) {
+      feedback.textContent = `💀 Game Over! The cat's name was ${correctName.toUpperCase()}.`;
+      feedback.style.color = "darkred";
+      clue.textContent = "";
+      setTimeout(() => {
+        document.getElementById("playAgainModal").style.display = "flex";
+      }, 1500);
+      return;
+    }
+
+    const uniqueCorrectLetters = new Set(correctName);
+    const matchedLetters = [...new Set(input)].filter(letter => uniqueCorrectLetters.has(letter));
+    const letterClue = matchedLetters.length > 0
+      ? `Clue: Your guess contains ${matchedLetters.length} correct letter(s): ${matchedLetters.join(", ").toUpperCase()}`
+      : `Clue: None of those letters are in the name.`;
+
+    const extraClue = (wrongGuesses >= 5) ? extraClues[correctName] : "";
+    clue.textContent = `${letterClue} ${extraClue}`;
   }
 </script>
 
