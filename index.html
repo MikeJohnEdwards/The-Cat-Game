@@ -137,11 +137,11 @@
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 
 <script>
-  const correctName = "Fluffy";
+   const correctName = "Fluffy".toLowerCase();
   let attemptCount = 0;
 
   function checkName() {
-    const input = document.getElementById("catNameInput").value.trim();
+    const input = document.getElementById("catNameInput").value.trim().toLowerCase();
     const feedback = document.getElementById("feedback");
     const clue = document.getElementById("clue");
 
@@ -161,15 +161,15 @@
       feedback.textContent = "❌ Try again!";
       feedback.style.color = "red";
 
-      if (attemptCount < correctName.length) {
-        const partial = correctName.substring(0, attemptCount + 1);
-        clue.textContent = `Clue: Starts with "${partial}"`;
-        attemptCount++;
-      } else {
-        clue.textContent = `Clue: The name is "${correctName}"`;
-      }
+      // Generate clue with matching letters
+      const uniqueCorrectLetters = new Set(correctName);
+      const matchedLetters = [...new Set(input)].filter(letter => uniqueCorrectLetters.has(letter));
+      clue.textContent = matchedLetters.length > 0
+        ? `Clue: Your guess contains ${matchedLetters.length} correct letter(s): ${matchedLetters.join(", ").toUpperCase()}`
+        : `Clue: None of those letters are in the name.`;
     }
   }
+</script>
 </script>
 
 </body>
